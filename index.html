@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Constellia Clicker: Boss Raid</title>
+    <title>Constellia Clicker: The Magic Wall</title>
     <style>
         :root { 
             --mana-blue: #00d4ff; 
@@ -17,46 +17,55 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             min-height: 100vh; margin: 0; padding: 20px;
             background-image: radial-gradient(circle at center, #1a0b2e 0%, #050208 100%);
+            overflow: hidden;
         }
 
-        /* Mage Gauge */
-        .mage-container { position: relative; width: 250px; height: 250px; margin-bottom: 10px; }
-        #mageGauge { width: 100%; height: 100%; object-fit: contain; transition: filter 0.3s; }
+        /* Elemental Particles */
+        .elemental {
+            position: absolute; width: 6px; height: 6px; 
+            background: var(--mana-blue); border-radius: 50%;
+            box-shadow: 0 0 10px var(--mana-blue);
+            pointer-events: none; z-index: 1;
+            transition: all 0.5s ease-out;
+        }
 
-        /* Boss HP Bar */
-        .boss-area { width: 480px; margin-bottom: 20px; text-align: center; }
-        .hp-background { background: #222; height: 25px; width: 100%; border: 1px solid var(--star-silver); border-radius: 5px; overflow: hidden; position: relative; }
-        .hp-fill { background: linear-gradient(90deg, #800000, var(--hp-red)); height: 100%; width: 100%; transition: width 0.3s ease-out; }
-        .hp-text { position: absolute; width: 100%; top: 0; left: 0; color: white; font-weight: bold; font-size: 0.9rem; line-height: 25px; text-shadow: 1px 1px 2px black; }
+        .mage-container { position: relative; width: 220px; height: 220px; margin-bottom: 10px; z-index: 5; }
+        #mageGauge { width: 100%; height: 100%; object-fit: contain; }
+
+        .boss-area { width: 480px; margin-bottom: 20px; text-align: center; z-index: 5; }
+        .hp-background { background: #111; height: 20px; width: 100%; border: 1px solid #444; border-radius: 3px; overflow: hidden; position: relative; }
+        .hp-fill { background: linear-gradient(90deg, #500, var(--hp-red)); height: 100%; width: 100%; transition: width 0.2s; }
+        .hp-text { position: absolute; width: 100%; top: 0; color: white; font-size: 0.8rem; line-height: 20px; font-weight: bold; }
 
         .constellia-box { 
-            border: 2px solid var(--mana-blue); padding: 30px; background: rgba(5, 2, 8, 0.9); 
-            width: 480px; text-align: center; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+            border: 2px solid var(--mana-blue); padding: 25px; background: rgba(5, 2, 8, 0.95); 
+            width: 480px; text-align: center; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            z-index: 10;
         }
         
-        .mana-display { font-size: 2.2rem; font-weight: bold; margin: 5px 0; color: #fff; }
-        .sp-display { color: var(--exp-gold); font-size: 1.1rem; margin-bottom: 15px; font-weight: bold; }
+        .mana-display { font-size: 2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .sp-display { color: var(--exp-gold); font-size: 1rem; margin-bottom: 15px; letter-spacing: 1px; }
         
-        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         button { 
             background: rgba(0, 212, 255, 0.05); color: var(--mana-blue); border: 1px solid var(--mana-blue); 
-            padding: 12px; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-weight: bold; border-radius: 5px;
+            padding: 10px; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-weight: bold; font-size: 0.75rem;
         }
         button:hover:not(:disabled) { background: var(--mana-blue); color: #000; }
-        button:disabled { border-color: #444 !important; color: #444 !important; cursor: not-allowed; opacity: 0.5; }
+        button:disabled { border-color: #333; color: #333; cursor: not-allowed; }
 
-        .upgrade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .upgrade-card { border: 1px solid rgba(255, 215, 0, 0.3); padding: 10px; font-size: 0.8rem; border-radius: 5px; }
+        .upgrade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .upgrade-card { border: 1px solid #333; padding: 8px; font-size: 0.7rem; border-radius: 5px; background: rgba(255,255,255,0.02); }
+        .upgrade-card b { color: var(--exp-gold); }
 
-        /* Animation Classes */
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .boss-hit { animation: shake 0.2s ease-in-out 2; }
+        @keyframes hit { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .wall-hit { animation: hit 0.1s ease-in-out; }
     </style>
 </head>
 <body onload="init()">
 
 <div class="boss-area" id="bossContainer">
-    <div style="color: var(--hp-red); font-weight: bold; letter-spacing: 3px; margin-bottom: 5px;">CELESTIAL ENTITY</div>
+    <div style="color: var(--star-silver); font-weight: bold; letter-spacing: 5px; margin-bottom: 5px;">MAGIC WALL</div>
     <div class="hp-background">
         <div class="hp-fill" id="hpFill"></div>
         <div class="hp-text" id="hpText">100 / 100 HP</div>
@@ -73,7 +82,8 @@
     
     <div class="btn-group">
         <button onclick="clickMana()">Channel Mana</button>
-        <button onclick="manaBurst()" id="burstBtn" style="border-color: var(--hp-red); color: var(--hp-red);">Mana Burst (All Mana)</button>
+        <button onclick="manaBurst()" id="burstBtn" style="color:var(--hp-red); border-color:var(--hp-red)">Mana Burst</button>
+        <button onclick="summonElemental()" id="summonBtn" style="grid-column: span 2;">Summon Elemental (Cost: 25 Mana)</button>
     </div>
 
     <div class="upgrade-grid">
@@ -85,113 +95,137 @@
             <div>Auto Flux (Lvl <span id="lvlAuto">0</span>)</div>
             <button onclick="buyUpgrade('auto')" id="btnAuto">Upgrade (1 SP)</button>
         </div>
+        <div class="upgrade-card" style="grid-column: span 2; border-color: var(--mana-blue);">
+            <div>Elemental Potency (Lvl <span id="lvlElem">0</span>)</div>
+            <p style="margin: 4px 0;">Current DPS: <b id="dpsView">0</b></p>
+            <button onclick="buyUpgrade('elem')" id="btnElem">Upgrade Damage (1 SP)</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Configuration
     let gameState = {
-        mana: 0,
-        sp: 0,
-        bossHp: 100,
-        bossMaxHp: 100,
+        mana: 0, sp: 0,
+        bossHp: 100, bossMaxHp: 100,
         level: 1,
-        upgrades: { click: 0, auto: 0 }
+        elementals: 0,
+        upgrades: { click: 0, auto: 0, elem: 0 }
     };
 
+    let elementalEntities = [];
+
     function init() {
-        const saved = JSON.parse(localStorage.getItem('constelliaBossData'));
+        const saved = JSON.parse(localStorage.getItem('constelliaWallData'));
         if (saved) gameState = saved;
         
-        // Passive Mana Generation
-        setInterval(() => {
-            gameState.mana += (gameState.upgrades.auto * 2);
-            updateDisplay();
-        }, 1000);
+        // Main Logic Loop (10 ticks per second for smooth movement)
+        setInterval(gameTick, 100);
+        updateDisplay();
+    }
+
+    function gameTick() {
+        // Passive Mana
+        gameState.mana += (gameState.upgrades.auto * 2) / 10;
+        
+        // Elemental Passive Damage
+        if (gameState.elementals > 0) {
+            const dmgPerTick = (gameState.elementals * (1 + gameState.upgrades.elem * 2)) / 10;
+            dealDamage(dmgPerTick);
+        }
 
         updateDisplay();
+        moveElementals();
+    }
+
+    function dealDamage(amount) {
+        gameState.bossHp -= amount;
+        if (gameState.bossHp <= 0) {
+            gameState.sp += 1;
+            gameState.level += 1;
+            gameState.bossMaxHp = Math.floor(100 * Math.pow(1.6, gameState.level - 1));
+            gameState.bossHp = gameState.bossMaxHp;
+            document.getElementById('bossContainer').classList.add('wall-hit');
+            setTimeout(() => document.getElementById('bossContainer').classList.remove('wall-hit'), 200);
+        }
     }
 
     function clickMana() {
         gameState.mana += (1 + (gameState.upgrades.click * 3));
-        updateDisplay();
     }
 
     function manaBurst() {
-        if (gameState.mana <= 0) return;
-
-        const damage = gameState.mana;
-        gameState.mana = 0;
-        gameState.bossHp -= damage;
-
-        // Visual feedback
-        document.getElementById('bossContainer').classList.add('boss-hit');
-        setTimeout(() => document.getElementById('bossContainer').classList.remove('boss-hit'), 400);
-
-        if (gameState.bossHp <= 0) {
-            bossDefeated();
+        if (gameState.mana > 0) {
+            dealDamage(gameState.mana);
+            gameState.mana = 0;
         }
-        
-        updateDisplay();
     }
 
-    function bossDefeated() {
-        gameState.sp += 1;
-        gameState.level += 1;
-        // Boss gets stronger next time
-        gameState.bossMaxHp = Math.floor(100 * Math.pow(1.5, gameState.level - 1));
-        gameState.bossHp = gameState.bossMaxHp;
-        alert("Boss Defeated! You gained 1 Skill Point.");
+    function summonElemental() {
+        const cost = 25 + (gameState.elementals * 10);
+        if (gameState.mana >= cost) {
+            gameState.mana -= cost;
+            gameState.elementals++;
+            createElementalVisual();
+        }
+    }
+
+    function createElementalVisual() {
+        const el = document.createElement('div');
+        el.className = 'elemental';
+        document.body.appendChild(el);
+        elementalEntities.push({
+            dom: el,
+            angle: Math.random() * Math.PI * 2,
+            dist: 120 + Math.random() * 40,
+            speed: 0.02 + Math.random() * 0.05
+        });
+    }
+
+    function moveElementals() {
+        elementalEntities.forEach(e => {
+            e.angle += e.speed;
+            const x = window.innerWidth / 2 + Math.cos(e.angle) * e.dist;
+            const y = window.innerHeight / 2 + Math.sin(e.angle) * e.dist - 50;
+            e.dom.style.left = x + 'px';
+            e.dom.style.top = y + 'px';
+        });
     }
 
     function buyUpgrade(type) {
         if (gameState.sp >= 1) {
             gameState.sp -= 1;
             gameState.upgrades[type]++;
-            save();
             updateDisplay();
         }
     }
 
     function updateDisplay() {
-        // Update Mana and SP
         document.getElementById('manaView').innerText = `${Math.floor(gameState.mana)} MANA`;
         document.getElementById('spView').innerText = `SKILL POINTS: ${gameState.sp}`;
         
-        // Update HP Bar
         const hpPercent = Math.max((gameState.bossHp / gameState.bossMaxHp) * 100, 0);
         document.getElementById('hpFill').style.width = hpPercent + "%";
         document.getElementById('hpText').innerText = `${Math.max(Math.floor(gameState.bossHp), 0)} / ${gameState.bossMaxHp} HP`;
 
-        // Update Mage Filter based on mana progress toward 100 (Arbitrary "full" look)
-        const manaSaturation = Math.min(gameState.mana / 100, 1);
-        document.getElementById('mageGauge').style.filter = `grayscale(${100 - (manaSaturation * 100)}%)`;
-
-        // UPDATE UPGRADE BUTTONS (The Fix)
-        const clickBtn = document.getElementById('btnClick');
-        const autoBtn = document.getElementById('btnAuto');
-        
         document.getElementById('lvlClick').innerText = gameState.upgrades.click;
         document.getElementById('lvlAuto').innerText = gameState.upgrades.auto;
+        document.getElementById('lvlElem').innerText = gameState.upgrades.elem;
+        
+        const dps = gameState.elementals * (1 + gameState.upgrades.elem * 2);
+        document.getElementById('dpsView').innerText = dps.toFixed(1);
 
-        // Force check SP count to enable/disable buttons
-        if (gameState.sp >= 1) {
-            clickBtn.disabled = false;
-            autoBtn.disabled = false;
-            clickBtn.style.borderColor = "var(--exp-gold)";
-            autoBtn.style.borderColor = "var(--exp-gold)";
-        } else {
-            clickBtn.disabled = true;
-            autoBtn.disabled = true;
-            clickBtn.style.borderColor = "#444";
-            autoBtn.style.borderColor = "#444";
-        }
+        const summonCost = 25 + (gameState.elementals * 10);
+        document.getElementById('summonBtn').innerText = `Summon Elemental (${summonCost} Mana)`;
+        document.getElementById('summonBtn').disabled = gameState.mana < summonCost;
 
-        save();
-    }
+        // Skill Point Button Fix
+        ['btnClick', 'btnAuto', 'btnElem'].forEach(id => {
+            const btn = document.getElementById(id);
+            btn.disabled = gameState.sp < 1;
+            btn.style.borderColor = gameState.sp >= 1 ? "var(--exp-gold)" : "#333";
+        });
 
-    function save() {
-        localStorage.setItem('constelliaBossData', JSON.stringify(gameState));
+        localStorage.setItem('constelliaWallData', JSON.stringify(gameState));
     }
 </script>
 </body>
