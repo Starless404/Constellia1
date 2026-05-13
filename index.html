@@ -3,138 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Constellia Clicker: The Magic Wall</title>
+    <title>Constellia: The Alchemist's Circle</title>
     <style>
         :root { 
             --mana-blue: #00d4ff; 
             --star-silver: #e0e0e0;
             --hp-red: #ff4d4d;
             --exp-gold: #ffd700;
+            --void-dark: #050208;
         }
         body { 
-            background-color: #050208; color: var(--mana-blue); 
+            background-color: var(--void-dark); color: var(--mana-blue); 
             font-family: 'Garamond', serif; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            display: flex; align-items: center; justify-content: space-around; 
             min-height: 100vh; margin: 0; padding: 20px;
             background-image: radial-gradient(circle at center, #1a0b2e 0%, #050208 100%);
             overflow: hidden;
         }
 
-        /* Elemental Particles */
-        .elemental {
-            position: absolute; width: 6px; height: 6px; 
-            background: var(--mana-blue); border-radius: 50%;
-            box-shadow: 0 0 10px var(--mana-blue);
-            pointer-events: none; z-index: 1;
-            transition: all 0.5s ease-out;
+        /* Side Panels */
+        .side-panel {
+            width: 200px; height: 80vh;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 15px; border-radius: 10px;
+            display: flex; flex-direction: column; gap: 15px;
+            z-index: 30;
         }
 
-        .mage-container { position: relative; width: 220px; height: 220px; margin-bottom: 10px; z-index: 5; }
-        #mageGauge { width: 100%; height: 100%; object-fit: contain; }
+        .panel-title { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: var(--star-silver); border-bottom: 1px solid #333; padding-bottom: 5px; text-align: center; }
 
-        .boss-area { width: 480px; margin-bottom: 20px; text-align: center; z-index: 5; }
-        .hp-background { background: #111; height: 20px; width: 100%; border: 1px solid #444; border-radius: 3px; overflow: hidden; position: relative; }
+        /* Tasks/Contracts */
+        .task-card {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid #444;
+            padding: 8px; border-radius: 4px; font-size: 0.75rem;
+        }
+        .task-card button { margin-top: 5px; padding: 5px; font-size: 0.65rem; }
+
+        /* Main Game Center */
+        .center-container { display: flex; flex-direction: column; align-items: center; width: 500px; }
+
+        .circle-container { position: relative; width: 220px; height: 220px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; }
+        .magic-ring { position: absolute; width: 100%; height: 100%; border: 2px double var(--mana-blue); border-radius: 50%; opacity: 0.2; animation: rotateRing 20s linear infinite; }
+        @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .elemental { position: absolute; width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 10px var(--mana-blue); pointer-events: none; z-index: 10; }
+
+        .hp-background { background: #111; height: 15px; width: 100%; border: 1px solid #444; border-radius: 3px; overflow: hidden; position: relative; margin-bottom: 10px; }
         .hp-fill { background: linear-gradient(90deg, #500, var(--hp-red)); height: 100%; width: 100%; transition: width 0.2s; }
-        .hp-text { position: absolute; width: 100%; top: 0; color: white; font-size: 0.8rem; line-height: 20px; font-weight: bold; }
 
-        .constellia-box { 
-            border: 2px solid var(--mana-blue); padding: 25px; background: rgba(5, 2, 8, 0.95); 
-            width: 480px; text-align: center; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-            z-index: 10;
-        }
+        .constellia-box { border: 2px solid var(--mana-blue); padding: 20px; background: rgba(5, 2, 8, 0.95); width: 100%; text-align: center; border-radius: 15px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2); }
         
-        .mana-display { font-size: 2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
-        .sp-display { color: var(--exp-gold); font-size: 1rem; margin-bottom: 15px; letter-spacing: 1px; }
+        .mana-display { font-size: 1.8rem; font-weight: bold; color: #fff; }
+        .sp-display { color: var(--exp-gold); font-size: 0.9rem; margin-bottom: 10px; }
         
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        button { 
-            background: rgba(0, 212, 255, 0.05); color: var(--mana-blue); border: 1px solid var(--mana-blue); 
-            padding: 10px; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-weight: bold; font-size: 0.75rem;
-        }
+        button { background: rgba(0, 212, 255, 0.05); color: var(--mana-blue); border: 1px solid var(--mana-blue); padding: 8px; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-weight: bold; width: 100%; }
         button:hover:not(:disabled) { background: var(--mana-blue); color: #000; }
-        button:disabled { border-color: #333; color: #333; cursor: not-allowed; }
+        button:disabled { border-color: #333; color: #333; opacity: 0.5; }
 
-        .upgrade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .upgrade-card { border: 1px solid #333; padding: 8px; font-size: 0.7rem; border-radius: 5px; background: rgba(255,255,255,0.02); }
-        .upgrade-card b { color: var(--exp-gold); }
-
-        @keyframes hit { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .wall-hit { animation: hit 0.1s ease-in-out; }
+        .upgrade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .upgrade-card { border: 1px solid #333; padding: 6px; font-size: 0.65rem; border-radius: 5px; }
     </style>
 </head>
 <body onload="init()">
 
-<div class="boss-area" id="bossContainer">
-    <div style="color: var(--star-silver); font-weight: bold; letter-spacing: 5px; margin-bottom: 5px;">MAGIC WALL</div>
-    <div class="hp-background">
-        <div class="hp-fill" id="hpFill"></div>
-        <div class="hp-text" id="hpText">100 / 100 HP</div>
-    </div>
-</div>
-
-<div class="mage-container">
-    <img src="image_2a4d99.jpg" id="mageGauge" alt="Mana Mage">
-</div>
-
-<div class="constellia-box">
-    <div class="mana-display" id="manaView">0 MANA</div>
-    <div class="sp-display" id="spView">SKILL POINTS: 0</div>
-    
-    <div class="btn-group">
-        <button onclick="clickMana()">Channel Mana</button>
-        <button onclick="manaBurst()" id="burstBtn" style="color:var(--hp-red); border-color:var(--hp-red)">Mana Burst</button>
-        <button onclick="summonElemental()" id="summonBtn" style="grid-column: span 2;">Summon Elemental (Cost: 25 Mana)</button>
+    <!-- LEFT PANEL: ALCHEMY -->
+    <div class="side-panel">
+        <div class="panel-title">Alchemical Lab</div>
+        <div class="task-card">
+            <p>Sacrifice an Elemental to reclaim pure Mana.</p>
+            <button onclick="sacrificeElemental()">Sacrifice (Gain 20 Mana)</button>
+        </div>
+        <p style="font-size: 0.7rem; color: #666; text-align: center;">Reducing your count lowers the cost of the next summon.</p>
     </div>
 
-    <div class="upgrade-grid">
-        <div class="upgrade-card">
-            <div>Mana Potency (Lvl <span id="lvlClick">0</span>)</div>
-            <button onclick="buyUpgrade('click')" id="btnClick">Upgrade (1 SP)</button>
+    <!-- CENTER: THE CIRCLE -->
+    <div class="center-container">
+        <div style="text-align:center; margin-bottom: 10px;">
+            <div style="font-size: 0.7rem; letter-spacing: 3px;">MAGIC WALL</div>
+            <div class="hp-background">
+                <div class="hp-fill" id="hpFill"></div>
+            </div>
         </div>
-        <div class="upgrade-card">
-            <div>Auto Flux (Lvl <span id="lvlAuto">0</span>)</div>
-            <button onclick="buyUpgrade('auto')" id="btnAuto">Upgrade (1 SP)</button>
+
+        <div class="circle-container" id="circleAnchor">
+            <div class="magic-ring"></div>
         </div>
-        <div class="upgrade-card" style="grid-column: span 2; border-color: var(--mana-blue);">
-            <div>Elemental Potency (Lvl <span id="lvlElem">0</span>)</div>
-            <p style="margin: 4px 0;">Current DPS: <b id="dpsView">0</b></p>
-            <button onclick="buyUpgrade('elem')" id="btnElem">Upgrade Damage (1 SP)</button>
+
+        <div class="constellia-box">
+            <div class="mana-display" id="manaView">0 MANA</div>
+            <div class="sp-display" id="spView">SKILL POINTS: 0</div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="clickMana()">Channel</button>
+                <button onclick="manaBurst()" style="color:var(--hp-red); border-color:var(--hp-red)">Burst</button>
+            </div>
+            
+            <button onclick="summonElemental()" id="summonBtn" style="margin-top:10px;">Summon (25 Mana)</button>
+
+            <div class="upgrade-grid">
+                <div class="upgrade-card">
+                    <b>Potency</b> (Lvl <span id="lvlClick">0</span>)<br>
+                    <button onclick="buyUpgrade('click')" id="btnClick">1 SP</button>
+                </div>
+                <div class="upgrade-card">
+                    <b>Flux</b> (Lvl <span id="lvlAuto">0</span>)<br>
+                    <button onclick="buyUpgrade('auto')" id="btnAuto">1 SP</button>
+                </div>
+                <div class="upgrade-card" style="grid-column: span 2;">
+                    <b>Elem. Damage</b> (Lvl <span id="lvlElem">0</span>)<br>
+                    <button onclick="buyUpgrade('elem')" id="btnElem">1 SP</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- RIGHT PANEL: CONTRACTS -->
+    <div class="side-panel">
+        <div class="panel-title">Void Contracts</div>
+        
+        <div class="task-card">
+            <b>Scribe's Toll</b>
+            <p>Cost: 150 Mana</p>
+            <button onclick="contract('scribe')">Gain 1 SP</button>
+        </div>
+
+        <div class="task-card">
+            <b>Etheric Link</b>
+            <p>Cost: 3 Elementals</p>
+            <button onclick="contract('link')">+5 Click Power</button>
+        </div>
+
+        <div class="task-card">
+            <b>Void Pact</b>
+            <p>Cost: 500 Mana</p>
+            <button onclick="contract('void')">Reset Wall HP</button>
+        </div>
+    </div>
 
 <script>
     let gameState = {
         mana: 0, sp: 0,
         bossHp: 100, bossMaxHp: 100,
-        level: 1,
-        elementals: 0,
+        level: 1, elementals: 0,
+        bonusClick: 0,
         upgrades: { click: 0, auto: 0, elem: 0 }
     };
 
     let elementalEntities = [];
+    const starPoints = [[0,-1], [0.588,0.809], [-0.951,-0.309], [0.951,-0.309], [-0.588,0.809]];
 
     function init() {
-        const saved = JSON.parse(localStorage.getItem('constelliaWallData'));
-        if (saved) gameState = saved;
-        
-        // Main Logic Loop (10 ticks per second for smooth movement)
-        setInterval(gameTick, 100);
+        const saved = JSON.parse(localStorage.getItem('constellia_v3'));
+        if (saved) {
+            gameState = saved;
+            for(let i=0; i<gameState.elementals; i++) spawnVisual();
+        }
+        setInterval(gameTick, 50);
         updateDisplay();
     }
 
     function gameTick() {
-        // Passive Mana
-        gameState.mana += (gameState.upgrades.auto * 2) / 10;
-        
-        // Elemental Passive Damage
+        gameState.mana += (gameState.upgrades.auto * 2) / 20;
         if (gameState.elementals > 0) {
-            const dmgPerTick = (gameState.elementals * (1 + gameState.upgrades.elem * 2)) / 10;
-            dealDamage(dmgPerTick);
+            const dps = gameState.elementals * (1 + gameState.upgrades.elem * 2);
+            dealDamage(dps / 20);
         }
-
-        updateDisplay();
         moveElementals();
+        updateDisplay();
     }
 
     function dealDamage(amount) {
@@ -144,20 +180,15 @@
             gameState.level += 1;
             gameState.bossMaxHp = Math.floor(100 * Math.pow(1.6, gameState.level - 1));
             gameState.bossHp = gameState.bossMaxHp;
-            document.getElementById('bossContainer').classList.add('wall-hit');
-            setTimeout(() => document.getElementById('bossContainer').classList.remove('wall-hit'), 200);
         }
     }
 
     function clickMana() {
-        gameState.mana += (1 + (gameState.upgrades.click * 3));
+        gameState.mana += (1 + (gameState.upgrades.click * 3) + gameState.bonusClick);
     }
 
     function manaBurst() {
-        if (gameState.mana > 0) {
-            dealDamage(gameState.mana);
-            gameState.mana = 0;
-        }
+        if (gameState.mana > 0) { dealDamage(gameState.mana); gameState.mana = 0; }
     }
 
     function summonElemental() {
@@ -165,67 +196,91 @@
         if (gameState.mana >= cost) {
             gameState.mana -= cost;
             gameState.elementals++;
-            createElementalVisual();
+            spawnVisual();
         }
     }
 
-    function createElementalVisual() {
+    function sacrificeElemental() {
+        if (gameState.elementals > 0) {
+            gameState.elementals--;
+            gameState.mana += 20;
+            const deadEl = elementalEntities.pop();
+            if (deadEl) deadEl.dom.remove();
+            updateDisplay();
+        }
+    }
+
+    function contract(type) {
+        if (type === 'scribe' && gameState.mana >= 150) {
+            gameState.mana -= 150; gameState.sp++;
+        } else if (type === 'link' && gameState.elementals >= 3) {
+            for(let i=0; i<3; i++) sacrificeElemental();
+            gameState.bonusClick += 5;
+        } else if (type === 'void' && gameState.mana >= 500) {
+            gameState.mana -= 500; gameState.bossHp = gameState.bossMaxHp;
+        }
+        updateDisplay();
+    }
+
+    function spawnVisual() {
         const el = document.createElement('div');
         el.className = 'elemental';
         document.body.appendChild(el);
+        const pathType = gameState.elementals % 3 === 0 ? 'star' : 'circle';
         elementalEntities.push({
-            dom: el,
-            angle: Math.random() * Math.PI * 2,
-            dist: 120 + Math.random() * 40,
-            speed: 0.02 + Math.random() * 0.05
+            dom: el, type: pathType, angle: Math.random() * Math.PI * 2,
+            speed: 0.01 + Math.random() * 0.02, progress: Math.random(),
+            dist: 90 + (Math.random() * 30)
         });
     }
 
     function moveElementals() {
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2 - 100;
         elementalEntities.forEach(e => {
-            e.angle += e.speed;
-            const x = window.innerWidth / 2 + Math.cos(e.angle) * e.dist;
-            const y = window.innerHeight / 2 + Math.sin(e.angle) * e.dist - 50;
-            e.dom.style.left = x + 'px';
-            e.dom.style.top = y + 'px';
+            let x, y;
+            if (e.type === 'circle') {
+                e.angle += e.speed;
+                x = centerX + Math.cos(e.angle) * e.dist;
+                y = centerY + Math.sin(e.angle) * e.dist;
+            } else {
+                e.progress += e.speed * 0.5;
+                const p = e.progress % 5;
+                const i = Math.floor(p);
+                const nextI = (i + 1) % 5;
+                const segP = p - i;
+                const start = starPoints[i], end = starPoints[nextI];
+                const lx = start[0] + (end[0] - start[0]) * segP;
+                const ly = start[1] + (end[1] - start[1]) * segP;
+                x = centerX + lx * e.dist;
+                y = centerY + ly * e.dist;
+            }
+            e.dom.style.left = x + 'px'; e.dom.style.top = y + 'px';
         });
     }
 
     function buyUpgrade(type) {
-        if (gameState.sp >= 1) {
-            gameState.sp -= 1;
-            gameState.upgrades[type]++;
-            updateDisplay();
-        }
+        if (gameState.sp >= 1) { gameState.sp -= 1; gameState.upgrades[type]++; updateDisplay(); }
     }
 
     function updateDisplay() {
         document.getElementById('manaView').innerText = `${Math.floor(gameState.mana)} MANA`;
         document.getElementById('spView').innerText = `SKILL POINTS: ${gameState.sp}`;
+        document.getElementById('hpFill').style.width = ((gameState.bossHp / gameState.bossMaxHp) * 100) + "%";
         
-        const hpPercent = Math.max((gameState.bossHp / gameState.bossMaxHp) * 100, 0);
-        document.getElementById('hpFill').style.width = hpPercent + "%";
-        document.getElementById('hpText').innerText = `${Math.max(Math.floor(gameState.bossHp), 0)} / ${gameState.bossMaxHp} HP`;
+        const summonCost = 25 + (gameState.elementals * 10);
+        document.getElementById('summonBtn').innerText = `Summon (${summonCost} Mana)`;
+        document.getElementById('summonBtn').disabled = gameState.mana < summonCost;
 
         document.getElementById('lvlClick').innerText = gameState.upgrades.click;
         document.getElementById('lvlAuto').innerText = gameState.upgrades.auto;
         document.getElementById('lvlElem').innerText = gameState.upgrades.elem;
-        
-        const dps = gameState.elementals * (1 + gameState.upgrades.elem * 2);
-        document.getElementById('dpsView').innerText = dps.toFixed(1);
 
-        const summonCost = 25 + (gameState.elementals * 10);
-        document.getElementById('summonBtn').innerText = `Summon Elemental (${summonCost} Mana)`;
-        document.getElementById('summonBtn').disabled = gameState.mana < summonCost;
-
-        // Skill Point Button Fix
         ['btnClick', 'btnAuto', 'btnElem'].forEach(id => {
-            const btn = document.getElementById(id);
-            btn.disabled = gameState.sp < 1;
-            btn.style.borderColor = gameState.sp >= 1 ? "var(--exp-gold)" : "#333";
+            document.getElementById(id).disabled = gameState.sp < 1;
         });
 
-        localStorage.setItem('constelliaWallData', JSON.stringify(gameState));
+        localStorage.setItem('constellia_v3', JSON.stringify(gameState));
     }
 </script>
 </body>
