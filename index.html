@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Constellia: Arcanist's Volley</title>
+    <title>Constellia: Infinite Scaling</title>
     <style>
         :root { 
             --mana-blue: #00d4ff; --star-silver: #e0e0e0; --hp-red: #ff4d4d;
@@ -17,94 +17,80 @@
             overflow: hidden;
         }
 
-        /* Elementals & Projectiles */
-        .elemental { 
-            position: absolute; width: 8px; height: 8px; background: #fff; 
-            border-radius: 50%; box-shadow: 0 0 12px var(--mana-blue); 
-            pointer-events: none; z-index: 10; transition: transform 0.1s linear;
-        }
-        .bolt {
-            position: absolute; width: 4px; height: 4px; background: var(--mana-blue);
-            border-radius: 50%; box-shadow: 0 0 8px #fff; pointer-events: none;
-            z-index: 9; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .elemental { position: absolute; width: 8px; height: 8px; background: #fff; border-radius: 50%; box-shadow: 0 0 12px var(--mana-blue); pointer-events: none; z-index: 10; }
+        .bolt { position: absolute; width: 4px; height: 4px; background: var(--mana-blue); border-radius: 50%; box-shadow: 0 0 8px #fff; pointer-events: none; z-index: 9; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .side-panel {
-            width: 240px; height: 85vh; background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(0, 212, 255, 0.2); padding: 15px; 
-            border-radius: 10px; display: flex; flex-direction: column; gap: 10px;
-            z-index: 30; overflow-y: auto; scrollbar-width: none;
-        }
-        .panel-title { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: var(--star-silver); border-bottom: 1px solid #333; padding-bottom: 5px; text-align: center; }
+        .side-panel { width: 250px; height: 88vh; background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(0, 212, 255, 0.2); padding: 15px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 30; overflow-y: auto; scrollbar-width: none; }
+        .panel-title { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: var(--star-silver); border-bottom: 1px solid #333; padding-bottom: 5px; text-align: center; margin-bottom: 5px; }
 
         .spell-card { background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 0.7rem; }
+        .spell-card b { color: var(--mana-blue); display: block; margin-bottom: 2px; }
         .spell-card button { margin-top: 5px; padding: 4px; font-size: 0.65rem; width: 100%; }
 
-        .center-container { display: flex; flex-direction: column; align-items: center; width: 450px; position: relative; }
-        #wallHeader { width: 100%; text-align: center; z-index: 20; }
-        #wallName { font-size: 0.8rem; font-weight: bold; letter-spacing: 3px; color: var(--star-silver); text-transform: uppercase; margin-bottom: 5px; min-height: 2.4em; display: flex; align-items: center; justify-content: center; }
+        .center-container { display: flex; flex-direction: column; align-items: center; width: 450px; }
+        #wallName { font-size: 0.9rem; font-weight: bold; letter-spacing: 3px; color: var(--star-silver); text-transform: uppercase; margin-bottom: 10px; text-align: center; height: 3em; display: flex; align-items: center; justify-content: center; text-shadow: 0 0 10px rgba(0,212,255,0.5); }
 
-        .hp-background { background: #111; height: 14px; width: 100%; border: 1px solid #444; border-radius: 10px; overflow: hidden; position: relative; margin-bottom: 15px; }
-        .hp-fill { background: linear-gradient(90deg, #500, var(--hp-red)); height: 100%; width: 100%; transition: width 0.1s; }
+        .hp-background { background: #111; height: 16px; width: 100%; border: 1px solid #444; border-radius: 20px; overflow: hidden; position: relative; margin-bottom: 20px; }
+        .hp-fill { background: linear-gradient(90deg, #600, var(--hp-red), #ff9999); height: 100%; width: 100%; transition: width 0.1s; }
 
-        .constellia-box { border: 2px solid var(--mana-blue); padding: 20px; background: rgba(5, 2, 8, 0.95); width: 100%; text-align: center; border-radius: 15px; position: relative; z-index: 20;}
-        .mana-display { font-size: 1.8rem; font-weight: bold; color: #fff; }
+        .constellia-box { border: 2px solid var(--mana-blue); padding: 25px; background: rgba(5, 2, 8, 0.95); width: 100%; text-align: center; border-radius: 15px; box-shadow: 0 0 30px rgba(0,212,255,0.1); }
+        .mana-display { font-size: 2rem; font-weight: bold; color: #fff; text-shadow: 0 0 10px var(--mana-blue); }
         
-        button { background: rgba(0, 212, 255, 0.05); color: var(--mana-blue); border: 1px solid var(--mana-blue); cursor: pointer; text-transform: uppercase; font-weight: bold; }
-        button:hover:not(:disabled) { background: var(--mana-blue); color: #000; }
+        button { background: rgba(0, 212, 255, 0.05); color: var(--mana-blue); border: 1px solid var(--mana-blue); cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
+        button:hover:not(:disabled) { background: var(--mana-blue); color: #000; box-shadow: 0 0 15px var(--mana-blue); }
         button:disabled { border-color: #333; color: #555; cursor: not-allowed; opacity: 0.5; }
+
+        #timer-box { font-size: 0.75rem; color: var(--exp-gold); margin: 10px 0; min-height: 1.2em; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body onload="init()">
 
     <div class="side-panel">
         <div class="panel-title">Alchemical Lab</div>
-        <div class="spell-card"><b>Supernova</b><p>Burst x10 for 10s.</p><button onclick="castSupernova()">Ignite</button></div>
-        <div class="spell-card"><b>Gravity Well</b><p>Dots freeze & fire rapidly.</p><button onclick="castGravity()">Collapse</button></div>
-        <div class="spell-card"><b>Blue Fire</b><p>Sacrifices boost Mana.</p><button onclick="unlockBlueFire()" id="btnBlueFire">Unlock (2 SP)</button></div>
-        <button onclick="sacrificeElemental()" style="margin-top:10px; font-size: 0.6rem;">Sacrifice (20 Mana)</button>
+        <div class="spell-card"><b>Supernova</b><p>Burst x10 dmg. Costs 2 Elem.</p><button onclick="castSupernova()">Ignite</button></div>
+        <div class="spell-card"><b>Gravity Well</b><p>4x Attack Speed. Costs 5 Elem.</p><button onclick="castGravity()">Collapse</button></div>
+        <div class="spell-card"><b>Prismatic Refraction</b><p>Twin Bolts, 75% dmg.</p><button onclick="castPrismatic()">Refract (100 M)</button></div>
+        <div class="spell-card"><b>Stellar Alignment</b><p>2x Elem Damage.</p><button onclick="castAlignment()">Align (200 M)</button></div>
+        <div class="spell-card"><b>Blue Fire (Perm)</b><p>Sacrifices boost Mana gain.</p><button onclick="unlockBlueFire()" id="btnBlueFire">Unlock (2 SP)</button></div>
+        <button onclick="sacrificeElemental()" style="margin-top:10px; font-size: 0.6rem; padding: 8px;">Sacrifice (Mana Burst)</button>
     </div>
 
     <div class="center-container">
-        <div id="wallHeader">
-            <div id="wallName">Magic Wall</div>
-            <div class="hp-background" id="targetBar"><div class="hp-fill" id="hpFill"></div></div>
-        </div>
-
-        <!-- Spacer for the wandering elementals -->
-        <div style="height: 200px; width: 100%;"></div>
-
+        <div id="wallName">Magic Wall</div>
+        <div style="width:100%"><div class="hp-background" id="targetBar"><div class="hp-fill" id="hpFill"></div></div></div>
+        <div style="height: 220px;"></div>
         <div class="constellia-box">
             <div class="mana-display" id="manaView">0 MANA</div>
-            <div id="timer-box" style="font-size: 0.7rem; color: var(--exp-gold); margin: 5px 0;"></div>
-            <div style="display: flex; gap: 10px; margin: 10px 0;">
-                <button onclick="clickMana()" id="btnChannel" style="flex:1; padding: 10px;">Channel</button>
-                <button onclick="manaBurst()" id="btnBurst" style="flex:1; color:var(--hp-red); border-color:var(--hp-red)">Burst</button>
+            <div id="timer-box"></div>
+            <div style="display: flex; gap: 12px; margin: 15px 0;">
+                <button onclick="clickMana()" style="flex:1; padding: 12px;">Channel</button>
+                <button onclick="manaBurst()" style="flex:1; color:var(--hp-red); border-color:var(--hp-red)">Burst</button>
             </div>
-            <button onclick="summonElemental()" id="summonBtn" style="width:100%; padding: 8px;">Summon (25 Mana)</button>
+            <button onclick="summonElemental()" id="summonBtn" style="width:100%; padding: 10px;">Summon (25 Mana)</button>
         </div>
     </div>
 
     <div class="side-panel">
-        <div class="panel-title">Ascension</div>
-        <div class="spell-card"><b>Scribe's Toll</b><button onclick="contract('scribe')" id="btnScribe">Buy 1 SP</button></div>
-        <div style="margin-top:10px; border-top: 1px solid #333; padding-top: 10px;">
+        <div class="panel-title">Contracts</div>
+        <div class="spell-card"><b>Scribe's Toll</b><p>Mana → SP</p><button onclick="contract('scribe')" id="btnScribe">Buy 1 SP</button></div>
+        <div class="spell-card"><b>Etheric Link</b><p>3 Elem → +Click Power</p><button onclick="contract('link')" id="btnLink">Bond Link</button></div>
+        <div style="margin-top:15px; border-top: 1px solid #333; padding-top: 10px;">
             <div class="panel-title">Talents</div>
-            <div class="spell-card">Potency (Lvl <span id="lvlClick">0</span>)<br><button onclick="buyUpgrade('click')" id="u1">1 SP</button></div>
-            <div class="spell-card">Flux (Lvl <span id="lvlAuto">0</span>)<br><button onclick="buyUpgrade('auto')" id="u2">1 SP</button></div>
-            <div class="spell-card">Elem. Dmg (Lvl <span id="lvlElem">0</span>)<br><button onclick="buyUpgrade('elem')" id="u3">1 SP</button></div>
-            <div style="text-align: center; color: var(--exp-gold); font-size: 1rem; margin-top: 10px; font-weight: bold;">SP: <span id="spView">0</span></div>
+            <div class="spell-card">Potency (Lvl <span id="lvlClick">0</span>)<button onclick="buyUpgrade('click')" id="u1">1 SP</button></div>
+            <div class="spell-card">Flux (Lvl <span id="lvlAuto">0</span>)<button onclick="buyUpgrade('auto')" id="u2">1 SP</button></div>
+            <div class="spell-card">Elem. Dmg (Lvl <span id="lvlElem">0</span>)<button onclick="buyUpgrade('elem')" id="u3">1 SP</button></div>
+            <div style="text-align: center; color: var(--exp-gold); font-size: 1.1rem; margin-top: 15px; font-weight: bold;">SP: <span id="spView">0</span></div>
         </div>
     </div>
 
 <script>
     let gameState = {
-        mana: 0, sp: 0, bossHp: 100, bossMaxHp: 100, level: 1, elementals: 0, 
+        mana: 0, sp: 0, bossHp: 100, bossMaxHp: 100, level: 1, elementals: 0, bonusClick: 0,
         upgrades: { click: 0, auto: 0, elem: 0 },
         blueFireUnlocked: false, blueFireStacks: 0, currentWallName: "Magic Wall"
     };
 
-    let buffs = { supernova: 0, gravity: 0 };
+    let buffs = { supernova: 0, gravity: 0, alignment: 0, prismatic: 0 };
     let elementalEntities = [];
 
     function f(num) {
@@ -113,7 +99,7 @@
     }
 
     function init() {
-        const saved = JSON.parse(localStorage.getItem('constellia_wander'));
+        const saved = JSON.parse(localStorage.getItem('constellia_v3'));
         if (saved) { gameState = saved; for(let i=0; i<gameState.elementals; i++) spawnVisual(); }
         setInterval(gameTick, 50);
         updateDisplay();
@@ -124,93 +110,64 @@
         let autoRate = (gameState.upgrades.auto * 5) * (1 + (gameState.blueFireStacks * 0.1));
         gameState.mana += autoRate / 20;
         
-        // Passive Damage Logic
+        // POWERFUL SCALING DPS: (Base + Upgrades) * Level Multiplier * Elementals
         if (gameState.elementals > 0) {
-            let baseDmg = (1 + gameState.upgrades.elem * 5);
-            let tickDmg = (baseDmg * gameState.elementals) / 20;
-            if (buffs.gravity > 0) tickDmg *= 3;
-            dealDamage(tickDmg);
+            let dmgPerElem = (5 + (gameState.upgrades.elem * 10)) * Math.pow(1.5, gameState.level - 1);
+            let totalDps = dmgPerElem * gameState.elementals;
+            
+            if (buffs.alignment > 0) totalDps *= 2;
+            if (buffs.prismatic > 0) totalDps *= 1.5; 
+            if (buffs.gravity > 0) totalDps *= 4;
+            
+            dealDamage(totalDps / 20);
         }
 
-        // Timers
-        if (buffs.supernova > 0) buffs.supernova -= 0.05;
-        if (buffs.gravity > 0) buffs.gravity -= 0.05;
-
+        Object.keys(buffs).forEach(k => { if(buffs[k] > 0) buffs[k] -= 0.05; });
         moveAndShoot();
         updateDisplay();
     }
 
     function spawnVisual() {
-        const el = document.createElement('div');
-        el.className = 'elemental';
-        document.body.appendChild(el);
-        elementalEntities.push({
-            dom: el,
-            x: window.innerWidth / 2,
-            y: window.innerHeight / 2,
-            vx: Math.random() * 4 - 2,
-            vy: Math.random() * 4 - 2,
-            shootTimer: Math.random() * 20
-        });
+        const el = document.createElement('div'); el.className = 'elemental'; document.body.appendChild(el);
+        elementalEntities.push({ dom: el, x: window.innerWidth / 2, y: window.innerHeight / 2, vx: Math.random() * 4 - 2, vy: Math.random() * 4 - 2, shootTimer: Math.random() * 20 });
     }
 
     function moveAndShoot() {
         const target = document.getElementById('targetBar').getBoundingClientRect();
         const targetX = target.left + target.width / 2;
         const targetY = target.top + target.height / 2;
-
         elementalEntities.forEach(e => {
-            if (buffs.gravity > 0) {
-                // Shake in place
-                e.x += Math.random() * 4 - 2;
-                e.y += Math.random() * 4 - 2;
-            } else {
-                // Wander
+            if (buffs.gravity > 0) { e.x += Math.random() * 6 - 3; e.y += Math.random() * 6 - 3; }
+            else {
                 e.x += e.vx; e.y += e.vy;
-                if (e.x < 100 || e.x > window.innerWidth - 100) e.vx *= -1;
-                if (e.y < 200 || e.y > window.innerHeight - 200) e.vy *= -1;
-                // Randomized drift
-                e.vx += Math.random() * 0.4 - 0.2;
-                e.vy += Math.random() * 0.4 - 0.2;
-                // Clamp speed
-                e.vx = Math.max(-3, Math.min(3, e.vx));
-                e.vy = Math.max(-3, Math.min(3, e.vy));
+                if (e.x < 50 || e.x > window.innerWidth - 50) e.vx *= -1;
+                if (e.y < 150 || e.y > window.innerHeight - 300) e.vy *= -1;
+                e.vx += Math.random() * 0.4 - 0.2; e.vy += Math.random() * 0.4 - 0.2;
+                e.vx = Math.max(-3, Math.min(3, e.vx)); e.vy = Math.max(-3, Math.min(3, e.vy));
             }
-
-            e.dom.style.left = e.x + 'px';
-            e.dom.style.top = e.y + 'px';
-
-            // Shooting Logic
+            e.dom.style.left = e.x + 'px'; e.dom.style.top = e.y + 'px';
+            e.dom.style.background = buffs.prismatic > 0 ? `hsl(${Date.now()%360}, 100%, 75%)` : '#fff';
             e.shootTimer--;
             if (e.shootTimer <= 0) {
                 createBolt(e.x, e.y, targetX, targetY);
-                e.shootTimer = buffs.gravity > 0 ? 5 : 20 + Math.random() * 40;
+                if (buffs.prismatic > 0) setTimeout(() => createBolt(e.x+10, e.y, targetX, targetY), 100);
+                e.shootTimer = buffs.gravity > 0 ? 5 : 25 + Math.random() * 30;
             }
         });
     }
 
     function createBolt(sx, sy, tx, ty) {
-        const b = document.createElement('div');
-        b.className = 'bolt';
-        b.style.left = sx + 'px';
-        b.style.top = sy + 'px';
+        const b = document.createElement('div'); b.className = 'bolt';
+        b.style.left = sx + 'px'; b.style.top = sy + 'px';
         document.body.appendChild(b);
-
-        // Animate to target
-        setTimeout(() => {
-            b.style.left = tx + 'px';
-            b.style.top = ty + 'px';
-            b.style.opacity = '0';
-        }, 10);
-
-        // Cleanup
+        setTimeout(() => { b.style.left = tx + 'px'; b.style.top = ty + 'px'; b.style.opacity = '0'; }, 10);
         setTimeout(() => b.remove(), 450);
     }
 
     function dealDamage(amount) {
         gameState.bossHp -= amount;
         if (gameState.bossHp <= 0) {
-            gameState.sp += Math.floor(1 + (gameState.level / 10));
+            gameState.sp += Math.floor(1 + (gameState.level / 5));
             gameState.level += 1;
             gameState.bossMaxHp = 100 * Math.pow(1.7, gameState.level - 1);
             gameState.bossHp = gameState.bossMaxHp;
@@ -219,21 +176,35 @@
     }
 
     function generateWallName() {
-        const pre = ["Grand", "Eternal", "Void", "Forbidden", "Celestial", "Abyssal"];
-        const mid = ["Arcane", "Mystic", "Iron", "Star", "Spirit"];
-        const suf = ["Wall", "Barrier", "Bulwark", "Bastion", "Sanctum"];
-        return pre[Math.floor(Math.random()*pre.length)] + " " + mid[Math.floor(Math.random()*mid.length)] + " " + suf[Math.floor(Math.random()*suf.length)];
+        const p = ["Great", "Abyssal", "Infinite", "Crystalline", "Forbidden", "Ancient"];
+        const m = ["Void", "Star", "Iron", "Soul", "Rune"];
+        const s = ["Barrier", "Monolith", "Sanctum", "Phantasm", "Horizon"];
+        return `The ${p[Math.floor(Math.random()*p.length)]} ${m[Math.floor(Math.random()*m.length)]} ${s[Math.floor(Math.random()*s.length)]}`;
     }
 
     function clickMana() {
         if (buffs.gravity > 0) return;
-        gameState.mana += (1 + (gameState.upgrades.click * 10));
+        gameState.mana += (1 + (gameState.upgrades.click * 10) + gameState.bonusClick) * Math.pow(1.2, gameState.level - 1);
     }
 
     function manaBurst() {
         if (gameState.mana <= 0 && buffs.supernova <= 0) return;
-        if (buffs.supernova > 0) { dealDamage(gameState.bossMaxHp * 0.1); }
-        else { dealDamage(gameState.mana); gameState.mana = 0; }
+        if (buffs.supernova > 0) { dealDamage(gameState.bossMaxHp * 0.15); }
+        else { dealDamage(gameState.mana * Math.pow(1.1, gameState.level)); gameState.mana = 0; }
+    }
+
+    function castSupernova() { if (gameState.elementals >= 2) { sacrificeElemental(); sacrificeElemental(); buffs.supernova = 10; } }
+    function castGravity() { if (gameState.elementals >= 5) { for(let i=0; i<5; i++) sacrificeElemental(); buffs.gravity = 15; } }
+    function castAlignment() { if (gameState.mana >= 200) { gameState.mana -= 200; buffs.alignment = 30; } }
+    function castPrismatic() { if (gameState.mana >= 100) { gameState.mana -= 100; buffs.prismatic = 60; } }
+    function unlockBlueFire() { if (gameState.sp >= 2) { gameState.sp -= 2; gameState.blueFireUnlocked = true; } }
+
+    function sacrificeElemental() {
+        if (gameState.elementals > 0) {
+            gameState.elementals--; gameState.mana += (50 * gameState.level);
+            if (gameState.blueFireUnlocked) { gameState.blueFireStacks++; setTimeout(() => { gameState.blueFireStacks--; }, 120000); }
+            const deadEl = elementalEntities.pop(); if (deadEl) deadEl.dom.remove();
+        }
     }
 
     function summonElemental() {
@@ -241,43 +212,47 @@
         if (gameState.mana >= cost) { gameState.mana -= cost; gameState.elementals++; spawnVisual(); }
     }
 
+    function contract(t) {
+        if (t === 'scribe') {
+            let cost = 150 * gameState.level;
+            if (gameState.mana >= cost) { gameState.mana -= cost; gameState.sp++; }
+        } else if (t === 'link') {
+            if (gameState.elementals >= 3) {
+                for(let i=0; i<3; i++) sacrificeElemental();
+                gameState.bonusClick += (10 * Math.pow(1.3, gameState.level/2));
+            }
+        }
+        updateDisplay();
+    }
+
     function buyUpgrade(type) {
         let cost = 1 + Math.floor(gameState.upgrades[type] / 5); 
         if (gameState.sp >= cost) { gameState.sp -= cost; gameState.upgrades[type]++; updateDisplay(); }
-    }
-
-    function castSupernova() { if (gameState.elementals >= 2) { sacrificeElemental(); sacrificeElemental(); buffs.supernova = 10; } }
-    function castGravity() { if (gameState.elementals >= 3) { buffs.gravity = 15; } }
-    function unlockBlueFire() { if (gameState.sp >= 2) { gameState.sp -= 2; gameState.blueFireUnlocked = true; } }
-
-    function sacrificeElemental() {
-        if (gameState.elementals > 0) {
-            gameState.elementals--; gameState.mana += (20 * gameState.level);
-            const deadEl = elementalEntities.pop(); if (deadEl) deadEl.dom.remove();
-        }
-    }
-
-    function contract(t) {
-        const cost = 150 * gameState.level;
-        if (gameState.mana >= cost) { gameState.mana -= cost; gameState.sp++; }
     }
 
     function updateDisplay() {
         document.getElementById('manaView').innerText = f(gameState.mana) + " MANA";
         document.getElementById('spView').innerText = f(gameState.sp);
         document.getElementById('hpFill').style.width = ((gameState.bossHp / gameState.bossMaxHp) * 100) + "%";
-        document.getElementById('wallName').innerText = gameState.currentWallName;
+        document.getElementById('wallName').innerText = gameState.currentWallName + " (Lvl " + gameState.level + ")";
         document.getElementById('lvlClick').innerText = gameState.upgrades.click;
         document.getElementById('lvlAuto').innerText = gameState.upgrades.auto;
         document.getElementById('lvlElem').innerText = gameState.upgrades.elem;
-        
-        document.getElementById('timer-box').innerText = buffs.supernova > 0 ? `SUPERNOVA: ${buffs.supernova.toFixed(1)}s` : buffs.gravity > 0 ? `GRAVITY WELL ACTIVE` : "";
-
-        const summonCost = 25 + (gameState.elementals * 15);
-        document.getElementById('summonBtn').innerText = `Summon (${f(summonCost)} M)`;
-        document.getElementById('summonBtn').disabled = gameState.mana < summonCost;
-
-        localStorage.setItem('constellia_wander', JSON.stringify(gameState));
+        document.getElementById('u1').innerText = (1 + Math.floor(gameState.upgrades.click / 5)) + " SP";
+        document.getElementById('u2').innerText = (1 + Math.floor(gameState.upgrades.auto / 5)) + " SP";
+        document.getElementById('u3').innerText = (1 + Math.floor(gameState.upgrades.elem / 5)) + " SP";
+        const scribeCost = 150 * gameState.level;
+        document.getElementById('btnScribe').innerText = `Buy 1 SP (${f(scribeCost)} M)`;
+        document.getElementById('btnScribe').disabled = gameState.mana < scribeCost;
+        document.getElementById('btnLink').disabled = gameState.elementals < 3;
+        const timer = document.getElementById('timer-box');
+        if (buffs.supernova > 0) timer.innerText = `Supernova: ${buffs.supernova.toFixed(1)}s`;
+        else if (buffs.gravity > 0) timer.innerText = `Gravity Well: ${buffs.gravity.toFixed(1)}s`;
+        else if (buffs.prismatic > 0) timer.innerText = `Refraction: ${buffs.prismatic.toFixed(1)}s`;
+        else if (buffs.alignment > 0) timer.innerText = `Alignment: ${buffs.alignment.toFixed(1)}s`;
+        else timer.innerText = "";
+        document.getElementById('btnBlueFire').disabled = gameState.blueFireUnlocked || gameState.sp < 2;
+        localStorage.setItem('constellia_v3', JSON.stringify(gameState));
     }
 </script>
 </body>
